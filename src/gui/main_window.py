@@ -3,10 +3,13 @@ from tkinter import ttk
 from .components.Card import Card
 from .components.Button import Button
 from core.Folder_manager import FolderManager
+from core.Canvas import Canvas
 
 class MainWindow():
 
     def __init__(self,root:Tk, folder_manager:FolderManager):
+        
+        
         self.root = root
         self.root.configure(bg="#262626")
         self.style = ttk.Style(self.root)
@@ -43,6 +46,18 @@ class MainWindow():
     def draw_logo(self):
         label = ttk.Label(self.root,text="TEMKA CREATIVE")
         label.pack(pady=0)
+        
+    def add_field_to_both(self, item_type: str):
+        self.before_canvas.add_item(item_type)
+        self.after_canvas.add_item(item_type)
+
+    def insert_all(self):
+        self.before_canvas.insert_content(self.folder_manager)
+        self.after_canvas.insert_content(self.folder_manager)
+
+    def save_all(self):
+        self.before_canvas.save_composition("before_composition.png")
+        self.after_canvas.save_composition("after_composition.png")
 
     def draw_main_space(self):
             margin = 25
@@ -240,7 +255,29 @@ class MainWindow():
             )
             
             self.buttons = [b1, b2, b3, b4, b5] 
+            
+            
+            self.before_canvas = Canvas(card3.card_canvas)
+            self.after_canvas = Canvas(card4.card_canvas)
+            
+            
+            choose_bg.callback_function = lambda: self.add_field_to_both('background')
+            add_card_image.callback_function = lambda: self.add_field_to_both('card')
+            add_selebrity.callback_function = lambda: self.add_field_to_both('celebrity')
+            add_object.callback_function = lambda: self.add_field_to_both('object')
+            add_text_fild.callback_function = lambda: self.add_field_to_both('text')
+            insert_all.callback_function = self.insert_all
+            save_all.callback_function = self.save_all
+            
+            choose_bg.setup_events()
+            add_card_image.setup_events()
+            add_selebrity.setup_events()
+            add_object.setup_events()
+            add_text_fild.setup_events()
+            insert_all.setup_events()
+            save_all.setup_events()
+            
+                        
     
     def on_folder_button_click(self, button: Button, func):
-        #  button manages its own active state independently
         func(button)
