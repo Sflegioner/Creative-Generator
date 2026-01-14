@@ -25,26 +25,29 @@ class FolderManager:
         selected_folder = filedialog.askdirectory(title="Select Backgrounds Folder")
         if selected_folder:
             self.all_paths_to_backgrounds_images = self._get_image_paths(selected_folder)
-        button.set_active()
-        # Optionally: print or return for UI update
+        button.set_active(bool(self.all_paths_to_backgrounds_images))  # Active if non-empty
+        print(self.all_paths_to_backgrounds_images)
 
     def take_celebrities_folder(self, button: Button):  # Fixed name
         selected_folder = filedialog.askdirectory(title="Select Celebrities Folder")
         if selected_folder:
             self.all_paths_to_celebrities_images = self._get_image_paths(selected_folder)
-        button.set_active()
+        button.set_active(bool(self.all_paths_to_celebrities_images))
+        print(self.all_paths_to_celebrities_images)
 
     def take_object_folder(self, button: Button):
         selected_folder = filedialog.askdirectory(title="Select Objects Folder")
         if selected_folder:
             self.all_paths_to_objects_images = self._get_image_paths(selected_folder)
-        button.set_active()
+        button.set_active(bool(self.all_paths_to_objects_images))
+        print(self.all_paths_to_objects_images)
     
     def take_items_folder(self, button: Button):
         selected_folder = filedialog.askdirectory(title="Select Items Folder")
         if selected_folder:
             self.all_paths_to_items_images = self._get_image_paths(selected_folder)
-        button.set_active()
+        button.set_active(bool(self.all_paths_to_items_images))
+        print(self.all_paths_to_items_images)  # Fixed
     
     def take_text_file(self, button: Button):
         selected_file = filedialog.askopenfilename(
@@ -53,4 +56,5 @@ class FolderManager:
         )
         if selected_file:
             self.paths_to_texts = [selected_file]
-        button.set_active()
+        button.set_active(bool(self.paths_to_texts))
+        print(self.paths_to_texts)

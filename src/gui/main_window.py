@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import ttk
 from .components.Card import Card
@@ -27,7 +26,6 @@ class MainWindow():
         self.draw_main_space()
         
         
-
       
     def draw_window(self):
         self.root.geometry("1920x1080")
@@ -65,11 +63,121 @@ class MainWindow():
                 root=self.root,
                 pos_x=30,
                 pos_y=70,
-                size=(200, 700),
+                size=(200, 600),
                 layer=6,
                 text="Folder Space",
                 bg_color="#3B3B3B" 
             )
+            
+            card3 = Card(
+                root=self.root,
+                pos_x=300,
+                pos_y=70,
+                size=(500, 600),
+                layer=6,
+                text="Before",
+                bg_color="#3B3B3B" 
+            )
+            
+            card4 = Card(
+                root=self.root,
+                pos_x=850,
+                pos_y=70,
+                size=(500, 600),
+                layer=6,
+                text="After",
+                bg_color="#3B3B3B" 
+            )
+            
+            tool_card = Card(
+                root=self.root,
+                pos_x=30,
+                pos_y=700,
+                size=(1450, 80),
+                layer=6,
+                text="Tools",
+                bg_color="#3B3B3B" 
+            )
+            #======================================================
+            choose_bg = Button(
+                tool_card.card_canvas,
+                pos_x=40,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Add background",
+                bg_color="#D6D6D6",
+                icon_path=None,
+                active=False
+            )
+            add_card_image = Button(
+                tool_card.card_canvas,
+                pos_x=200,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Add card",
+                bg_color="#D6D6D6",
+                icon_path=None,
+                active=False
+            )
+            add_selebrity = Button(
+                tool_card.card_canvas,
+                pos_x=360,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Add celebrity",
+                bg_color="#D6D6D6",
+                icon_path=None,
+                active=False
+            )
+            add_object = Button(
+                tool_card.card_canvas,
+                pos_x=520,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Add object",
+                bg_color="#D6D6D6",
+                icon_path=None,
+                active=False
+            )
+            add_text_fild = Button(
+                tool_card.card_canvas,
+                pos_x=680,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Add text field",
+                bg_color="#D6D6D6",
+                icon_path=None,
+                active=False
+            )
+            insert_all = Button(
+                tool_card.card_canvas,
+                pos_x=840,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Insert all",
+                bg_color="#947432",
+                icon_path=None,
+                active=False
+            )
+            save_all = Button(
+                tool_card.card_canvas,
+                pos_x=1000,
+                pos_y=45,
+                size=(120,25),
+                layer=8,
+                text="Save all",
+                bg_color="#286818",
+                icon_path=None,
+                active=False
+            )
+            
+            #=====================ToolsButton=================================
             b1 = Button(
                 card2.card_canvas,
                 pos_x=25,
@@ -105,8 +213,7 @@ class MainWindow():
                 callback_function=lambda: self.on_folder_button_click(b3, self.folder_manager.take_celebrities_folder),
                 icon_path=None,
                 active=False
-            )
-            
+            )          
             b4 = Button(
                 card2.card_canvas,
                 pos_x=25,
@@ -132,11 +239,8 @@ class MainWindow():
                 active=False
             )
             
-            self.buttons = [b1, b2, b3, b4, b5]  # List for easy deactivation
+            self.buttons = [b1, b2, b3, b4, b5] 
     
     def on_folder_button_click(self, button: Button, func):
-        # Deactivate all buttons first
-        for b in self.buttons:
-            b.set_active(False)
-        # Call the manager function (which will activate the current button)
+        #  button manages its own active state independently
         func(button)
