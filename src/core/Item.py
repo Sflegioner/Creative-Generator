@@ -13,9 +13,21 @@ class Item:
         self.canvas_id = None  # Tk canvas item ID for placeholder/image
         self.photo = None  # ImageTk.PhotoImage for display
         self.is_background = False  # Flag for special handling
+        self.tk_image = None
 
     def draw_on_canvas(self, tk_canvas: tk.Canvas, bg_color: str = "#808080"):
         """Draw placeholder rectangle or actual content if loaded."""
+        if isinstance(self.content, Image.Image):
+            self.tk_image = ImageTk.PhotoImage(self.content)
+
+            if self.canvas_id:
+                tk_canvas.itemconfig(self.canvas_id, image=self.tk_image)
+            else:
+                self.canvas_id = tk_canvas.create_image(
+                    self.x, self.y,
+                    image=self.tk_image
+            )
+        
         if self.canvas_id:
             tk_canvas.delete(self.canvas_id)
         

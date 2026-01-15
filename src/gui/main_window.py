@@ -9,7 +9,7 @@ class MainWindow():
 
     def __init__(self,root:Tk, folder_manager:FolderManager):
         
-        
+    
         self.root = root
         self.root.configure(bg="#262626")
         self.style = ttk.Style(self.root)
@@ -18,7 +18,7 @@ class MainWindow():
                                 foreground="#e0e0ff",
                                 font=('Segoe UI', 11))
         self.root.resizable(True, True)
-        
+
         self.folder_manager = folder_manager
 
         self.screen_w =self.root.winfo_screenwidth()
@@ -121,7 +121,7 @@ class MainWindow():
                 size=(120,25),
                 layer=8,
                 text="Add background",
-                bg_color="#D6D6D6",
+                bg_color="#1E1E1E",
                 icon_path=None,
                 active=False
             )
@@ -132,7 +132,7 @@ class MainWindow():
                 size=(120,25),
                 layer=8,
                 text="Add card",
-                bg_color="#D6D6D6",
+                bg_color="#1E1E1E",
                 icon_path=None,
                 active=False
             )
@@ -143,7 +143,7 @@ class MainWindow():
                 size=(120,25),
                 layer=8,
                 text="Add celebrity",
-                bg_color="#D6D6D6",
+                bg_color="#1E1E1E",
                 icon_path=None,
                 active=False
             )
@@ -154,7 +154,7 @@ class MainWindow():
                 size=(120,25),
                 layer=8,
                 text="Add object",
-                bg_color="#D6D6D6",
+                bg_color="#1E1E1E",
                 icon_path=None,
                 active=False
             )
@@ -165,7 +165,7 @@ class MainWindow():
                 size=(120,25),
                 layer=8,
                 text="Add text field",
-                bg_color="#D6D6D6",
+                bg_color="#1E1E1E",
                 icon_path=None,
                 active=False
             )
@@ -257,8 +257,8 @@ class MainWindow():
             self.buttons = [b1, b2, b3, b4, b5] 
             
             
-            self.before_canvas = Canvas(card3.card_canvas)
-            self.after_canvas = Canvas(card4.card_canvas)
+            self.before_canvas = Canvas(card3.card_canvas, is_before=True)
+            self.after_canvas = Canvas(card4.card_canvas, is_before=False)
             
             
             choose_bg.callback_function = lambda: self.add_field_to_both('background')

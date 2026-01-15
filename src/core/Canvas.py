@@ -1,10 +1,14 @@
-from PIL import Image, ImageTk, ImageDraw
+# src/gui/canvas.py (assuming file structure)
+from PIL import Image, ImageTk, ImageDraw, ImageFont
 import tkinter as tk
-from .Item import Item  # Assuming Item is in core
+from .Item import Item  # Assuming Item is in core, adjust if needed
+import os
+import random
 
 class Canvas:
-    def __init__(self, canvas_tk: tk.Canvas):
+    def __init__(self, canvas_tk: tk.Canvas, is_before: bool):
         self.tk_canvas = canvas_tk
+        self.is_before = is_before  # True for Before canvas (_D), False for After (_P)
         self.items = []  # List of Item objects
         self.selected_item = None
         self.drag_start_x = 0
@@ -36,7 +40,7 @@ class Canvas:
 
         # Otherwise, select item
         self._select_item(event)
-        if self.selected_item:
+        if self.selected_item and not self.selected_item.is_background:  # Ignore selection for background
             self.mode = 'move'
             self.drag_start_x = event.x
             self.drag_start_y = event.y
@@ -90,9 +94,9 @@ class Canvas:
         clicked_ids = self.tk_canvas.find_overlapping(event.x - 5, event.y - 5, event.x + 5, event.y + 5)
         if clicked_ids:
             for item in self.items:
-                if item.canvas_id in clicked_ids:
+                if item.canvas_id in clicked_ids and not item.is_background:  # Ignore background
                     self.selected_item = item
-                    if not item.is_background:  # No handles for background
+                    if not item.is_background:
                         self.draw_handles()
                     break
         else:
@@ -130,14 +134,18 @@ class Canvas:
             height = self.tk_canvas.winfo_height()
             new_item = Item(item_type, width // 2, height // 2, width, height)
             new_item.is_background = True  # Flag to disable manipulation
+            self.items.insert(0, new_item)  # Add to beginning for lowest layer
         else:
             new_item = Item(item_type, 50 + len(self.items) * 20, 50 + len(self.items) * 20, 100, 100)
             new_item.is_background = False
+            self.items.append(new_item)
         
-        self.items.append(new_item)
         new_item.draw_on_canvas(self.tk_canvas)
+        if new_item.is_background:
+            self.tk_canvas.lower(new_item.canvas_id)  # Send to back
 
     def insert_content(self, folder_manager):
+        suffix = '_D' if self.is_before else '_P'
         for item in self.items:
             paths = {
                 'background': folder_manager.all_paths_to_backgrounds_images,
@@ -148,15 +156,31 @@ class Canvas:
             }.get(item.type, [])
             
             if paths:
-                import random
+                # Filter paths that end with the suffix before the extension (case-insensitive)
+                filtered_paths = [
+                    p for p in paths 
+                    if os.path.basename(p).rsplit('.', 1)[0].lower().endswith(suffix.lower())
+                ]
                 if item.type == 'text':
-                    path = random.choice(paths)
-                    with open(path, 'r') as f:
-                        item.content = f.read().strip()[:100]
+                    print(f"Suffix for text: {suffix}")
+                    print(f"All text paths: {paths}")
+                    print(f"Filtered text paths: {filtered_paths}")
+                if not filtered_paths:
+                    filtered_paths = paths  # Fallback to all if none match
+                
+                path = random.choice(filtered_paths)
+                if item.type == 'text':
+                    try:
+                        with open(path, 'r', encoding='utf-8') as f:
+                            item.content = f.read().strip()
+                    except UnicodeDecodeError:
+                        with open(path, 'r', encoding='cp1251') as f:
+                            item.content = f.read().strip()  # Fallback to cp1251 for Windows Cyrillic files
                 else:
-                    path = random.choice(paths)
                     item.content = Image.open(path)
                 item.draw_on_canvas(self.tk_canvas)
+                if item.is_background:
+                    self.tk_canvas.lower(item.canvas_id)  # Ensure background stays at back after insert
 
     def save_composition(self, filename: str):
         width, height = self.tk_canvas.winfo_width(), self.tk_canvas.winfo_height()
@@ -171,8 +195,58 @@ class Canvas:
                 composite.paste(resized, (paste_x, paste_y), resized if resized.mode == 'RGBA' else None)
         composite.save(filename)
 
+    def insert_content(self, folder_manager):
+        suffix = '_D' if self.is_before else '_P'
+
+        for item in self.items:
+            if item.type != 'text':
+                continue
+            paths = folder_manager.paths_to_texts
+            if not paths:
+                continue
+
+            path = random.choice(paths) 
+            lines = []
+
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+            except UnicodeDecodeError:
+                with open(path, 'r', encoding='cp1251') as f:
+                    lines = f.readlines()
+
+
+            selected_line = None
+            for line in lines:
+                clean = line.strip()
+                if not clean:
+                    continue
+
+                if clean.endswith(suffix):
+                    selected_line = clean.replace(suffix, "").strip()
+                    break
+
+            if not selected_line:
+                selected_line = lines[0].strip() if lines else ""
+
+            item.content = selected_line
+            item.draw_on_canvas(self.tk_canvas)
+
     def _text_to_image(self, text: str) -> Image:
-        img = Image.new("RGBA", (200, 50), (255, 255, 255, 0))
-        draw = ImageDraw.Draw(img)
-        draw.text((10, 10), text, fill="white")
+        font_size = 20
+        font_path = "C:/GitProjects/Creative-Generator/resources/fonts/TikTokSans-VF-v3.3.ttf"
+
+        font = ImageFont.truetype(font_path, font_size)
+
+        dummy = Image.new("RGBA", (1, 1))
+        d = ImageDraw.Draw(dummy)
+        bbox = d.textbbox((0, 0), text, font=font)
+
+        w = bbox[2] - bbox[0] + 20
+        h = bbox[3] - bbox[1] + 20
+
+        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        d = ImageDraw.Draw(img)
+        d.text((10, 10), text, fill="white", font=font)
+
         return img
