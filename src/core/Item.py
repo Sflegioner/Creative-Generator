@@ -62,6 +62,5 @@ class Item:
     def update_position(self, new_x: int, new_y: int):
         self.x = new_x
         self.y = new_y
-
     def rotate(self, delta: float):
         self.rotation = (self.rotation + delta) % 360

@@ -9,6 +9,10 @@ class FolderManager:
         self.all_paths_to_celebrities_images = []
         self.all_paths_to_objects_images = []
         self.all_paths_to_items_images = []
+        self.all_paths_to_cars_images = []
+        self.all_paths_to_clocks_images = []
+        self.all_paths_to_phones_images = []
+        self.all_paths_to_tgstuff_images = []
         self.paths_to_texts = []
         
     def _get_image_paths(self, folder_path: str) -> list[str]:
@@ -48,6 +52,34 @@ class FolderManager:
             self.all_paths_to_items_images = self._get_image_paths(selected_folder)
         button.set_active(bool(self.all_paths_to_items_images))
         print(self.all_paths_to_items_images)  # Fixed
+
+    def take_cars_folder(self, button: Button):
+        selected_folder = filedialog.askdirectory(title="Select Cars Folder")
+        if selected_folder:
+            self.all_paths_to_cars_images = self._get_image_paths(selected_folder)
+        button.set_active(bool(self.all_paths_to_cars_images))
+        print(self.all_paths_to_cars_images)
+
+    def take_clocks_folder(self, button: Button):
+        selected_folder = filedialog.askdirectory(title="Select Clocks Folder")
+        if selected_folder:
+            self.all_paths_to_clocks_images = self._get_image_paths(selected_folder)
+        button.set_active(bool(self.all_paths_to_clocks_images))
+        print(self.all_paths_to_clocks_images)
+
+    def take_phones_folder(self, button: Button):
+        selected_folder = filedialog.askdirectory(title="Select Phones Folder")
+        if selected_folder:
+            self.all_paths_to_phones_images = self._get_image_paths(selected_folder)
+        button.set_active(bool(self.all_paths_to_phones_images))
+        print(self.all_paths_to_phones_images)
+
+    def take_tgstuff_folder(self, button: Button):
+        selected_folder = filedialog.askdirectory(title="Select TGstuff Folder")
+        if selected_folder:
+            self.all_paths_to_tgstuff_images = self._get_image_paths(selected_folder)
+        button.set_active(bool(self.all_paths_to_tgstuff_images))
+        print(self.all_paths_to_tgstuff_images)
     
     def take_text_file(self, button: Button):
         selected_file = filedialog.askopenfilename(

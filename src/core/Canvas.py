@@ -21,8 +21,10 @@ class Canvas:
         self.tk_canvas.bind("<Button-1>", self.on_click)
         self.tk_canvas.bind("<B1-Motion>", self.on_drag)
         self.tk_canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.tk_canvas.bind("<Delete>", self.on_delete)
 
     def on_click(self, event):
+        self.tk_canvas.focus_set()
 
         clicked_ids = self.tk_canvas.find_overlapping(event.x - 2, event.y - 2, event.x + 2, event.y + 2)
         for hid in self.handles:
@@ -87,6 +89,13 @@ class Canvas:
     def on_release(self, event):
         self.mode = None
 
+    def on_delete(self, event):
+        if self.selected_item and not self.selected_item.is_background:
+            self.tk_canvas.delete(self.selected_item.canvas_id)
+            self.items.remove(self.selected_item)
+            self.selected_item = None
+            self.clear_handles()
+
     def _select_item(self, event):
         self.clear_handles()
         clicked_ids = self.tk_canvas.find_overlapping(event.x - 5, event.y - 5, event.x + 5, event.y + 5)
@@ -128,7 +137,7 @@ class Canvas:
         for hid in self.handles:
             self.tk_canvas.delete(hid)
         self.handles = []
-
+ 
     def redraw_selected_item(self):
         if self.selected_item:
             self.selected_item.draw_on_canvas(self.tk_canvas)
@@ -162,6 +171,10 @@ class Canvas:
                 'card': folder_manager.all_paths_to_items_images,
                 'celebrity': folder_manager.all_paths_to_celebrities_images,
                 'object': folder_manager.all_paths_to_objects_images,
+                'car': folder_manager.all_paths_to_cars_images,
+                'clock': folder_manager.all_paths_to_clocks_images,
+                'phone': folder_manager.all_paths_to_phones_images,
+                'tgstuff': folder_manager.all_paths_to_tgstuff_images,
                 'text': folder_manager.paths_to_texts
             }.get(item.type, [])
 
