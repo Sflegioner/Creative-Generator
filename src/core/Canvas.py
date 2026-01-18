@@ -182,37 +182,71 @@ class Canvas:
                 continue
 
             if item.type == 'text':
-                path = random.choice(paths)
-                valid_lines = []
-
-                try:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        lines = f.readlines()
-                except UnicodeDecodeError:
-                    try:
-                        with open(path, 'r', encoding='cp1251') as f:
-                            lines = f.readlines()
-                    except Exception as e:
-                        print(f"Error reading file {path}: {e}")
-                        lines = []
-
-                for line in lines:
-                    clean_line = line.strip()
-                    if clean_line.endswith(suffix):
-                        content_without_suffix = clean_line[:-len(suffix)]
-                        final_text = content_without_suffix.strip().strip('"')
+                if not hasattr(folder_manager, 'text_pairs'):
+                    text_pairs = {}
+                    for path in paths:
+                        try:
+                            with open(path, 'r', encoding='utf-8') as f:
+                                lines = f.readlines()
+                        except UnicodeDecodeError:
+                            try:
+                                with open(path, 'r', encoding='cp1251') as f:
+                                    lines = f.readlines()
+                            except Exception as e:
+                                print(f"Error reading file {path}: {e}")
+                                lines = []
                         
-                        if final_text:
-                            valid_lines.append(final_text)
+                        for line in lines:
+                            clean_line = line.strip()
+                            if not clean_line:
+                                continue
+                            split_str = None
+                            current_suffix = None
+                            if '_D ' in clean_line:
+                                split_str = '_D '
+                                current_suffix = '_D'
+                            elif '_P ' in clean_line:
+                                split_str = '_P '
+                                current_suffix = '_P'
+                            if split_str is None:
+                                continue
+                            parts = clean_line.rsplit(split_str, 1)
+                            if len(parts) != 2:
+                                continue
+                            phrase = parts[0].strip().strip('"')
+                            id_str = parts[1].strip()
+                            if not id_str.isdigit():
+                                continue
+                            id_num = int(id_str)
+                            if id_num not in text_pairs:
+                                text_pairs[id_num] = {}
+                            text_pairs[id_num][current_suffix] = phrase
+                    
+                    folder_manager.text_pairs = text_pairs
+                else:
+                    text_pairs = folder_manager.text_pairs
 
-                if valid_lines:
-                    selected_text = random.choice(valid_lines)
+                if self.is_before or not hasattr(folder_manager, 'selected_text_id'):
+                    complete_ids = [id_num for id_num, d in text_pairs.items() if '_D' in d and '_P' in d]
+                    if not complete_ids:
+                        print("No complete text pairs found.")
+                        selected_id = None
+                    else:
+                        selected_id = random.choice(complete_ids)
+                        folder_manager.selected_text_id = selected_id
+                else:
+                    selected_id = folder_manager.selected_text_id
+
+                if (selected_id is not None and 
+                    selected_id in text_pairs and 
+                    suffix in text_pairs[selected_id]):
+                    selected_text = text_pairs[selected_id][suffix]
                     item.content = self._text_to_image(selected_text)
                 else:
-                    print(f"No text found with suffix {suffix} in {path}")
+                    print(f"No text found for ID {selected_id} and suffix {suffix}")
+                    item.content = self._text_to_image("NO TEXT")
 
             else:
-
                 filtered_paths = [
                     p for p in paths 
                     if os.path.basename(p).rsplit('.', 1)[0].lower().endswith(suffix.lower())
@@ -277,13 +311,11 @@ class Canvas:
             if item.content:
                 content_img = item.content if not isinstance(item.content, str) else self._text_to_image(item.content)
                 rotated = content_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
-                # Змінюємо розмір
                 resized = rotated.resize((item.width, item.height), Image.LANCZOS)
                 
                 paste_x = item.x - item.width // 2
                 paste_y = item.y - item.height // 2
                 
-                # Накладаємо
                 composite.paste(resized, (paste_x, paste_y), resized if resized.mode == 'RGBA' else None)
         
         composite.save(filename)
