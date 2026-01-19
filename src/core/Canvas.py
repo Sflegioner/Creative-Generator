@@ -1,3 +1,4 @@
+# core/Canvas.py
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import tkinter as tk
 from .Item import Item 
@@ -5,9 +6,11 @@ import os
 import random
 
 class Canvas:
-    def __init__(self, canvas_tk: tk.Canvas, is_before: bool):
+    
+    def __init__(self, canvas_tk: tk.Canvas, is_before: bool, main_window):
         self.tk_canvas = canvas_tk
         self.is_before = is_before 
+        self.main_window = main_window
         self.items = []
         self.selected_item = None
         self.drag_start_x = 0
@@ -162,6 +165,7 @@ class Canvas:
             self.tk_canvas.lower(new_item.canvas_id)
 
     def insert_content(self, folder_manager):
+        #TO
         suffix = '_D' if self.is_before else '_P'
         
         for item in self.items:
@@ -241,10 +245,12 @@ class Canvas:
                     selected_id in text_pairs and 
                     suffix in text_pairs[selected_id]):
                     selected_text = text_pairs[selected_id][suffix]
-                    item.content = self._text_to_image(selected_text)
+                    font_path = self.main_window.font_selector.get_selected_font_path()
+                    item.content = self._text_to_image(selected_text, font_path=font_path)
                 else:
                     print(f"No text found for ID {selected_id} and suffix {suffix}")
-                    item.content = self._text_to_image("NO TEXT")
+                    font_path = self.main_window.font_selector.get_selected_font_path()
+                    item.content = self._text_to_image("NO TEXT", font_path=font_path)
 
             else:
                 filtered_paths = [
@@ -264,14 +270,20 @@ class Canvas:
             if item.is_background:
                 self.tk_canvas.lower(item.canvas_id)
 
-    def _text_to_image(self, text: str) -> Image:
+    def _text_to_image(self, text: str, font_path: str = None) -> Image:
         font_size = 40
         
-        try:
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except OSError:
+        if not font_path:
             try:
-                font_path = "C:/GitProjects/Creative-Generator/resources/fonts/TikTokSans-VF-v3.3.ttf"
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except OSError:
+                try:
+                    font_path = "C:/GitProjects/Creative-Generator/resources/fonts/TikTokSans-VF-v3.3.ttf"
+                    font = ImageFont.truetype(font_path, font_size)
+                except OSError:
+                    font = ImageFont.load_default()
+        else:
+            try:
                 font = ImageFont.truetype(font_path, font_size)
             except OSError:
                 font = ImageFont.load_default()
@@ -305,7 +317,7 @@ class Canvas:
 
     def save_composition(self, filename: str):
         width, height = self.tk_canvas.winfo_width(), self.tk_canvas.winfo_height()
-        composite = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        composite = Image.new("RGB", (width, height), (128, 128, 128))  # Start with solid gray to match placeholder and avoid transparency issues
 
         for item in self.items:
             if item.content:

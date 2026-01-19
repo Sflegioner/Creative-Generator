@@ -1,9 +1,11 @@
+# main_window.py (or wherever MainWindow is defined)
 from tkinter import *
 from tkinter import ttk
 from .components.Card import Card
 from .components.Button import Button
 from core.Folder_manager import FolderManager
 from core.Canvas import Canvas
+from core.FontSelector import FontSelector
 
 class MainWindow():
 
@@ -23,6 +25,8 @@ class MainWindow():
 
         self.screen_w =self.root.winfo_screenwidth()
         self.screen_h = self.root.winfo_screenheight()
+
+        self.font_selector = None  # Initialized in draw_main_space
 
         self.draw_window()
         self.draw_logo()
@@ -363,8 +367,8 @@ class MainWindow():
             self.buttons = [b1, b2, b3, b4, b5, b6, b7, b8, b9] 
             
             
-            self.before_canvas = Canvas(card3.card_canvas, is_before=True)
-            self.after_canvas = Canvas(card4.card_canvas, is_before=False)
+            self.before_canvas = Canvas(card3.card_canvas, is_before=True, main_window=self)
+            self.after_canvas = Canvas(card4.card_canvas, is_before=False, main_window=self)
             
             
             choose_bg.callback_function = lambda: self.add_field_to_both('background')
@@ -390,6 +394,10 @@ class MainWindow():
             add_tgstuff.setup_events()
             insert_all.setup_events()
             save_all.setup_events()
+
+            # Add FontSelector
+            self.font_selector = FontSelector(tool_card.card_canvas, initial_font="TikTokSans-VF-v3.3.ttf")
+            self.font_selector.combobox.place(x=tool_button_start_x + 11 * tool_button_dx, y=tool_button_y)
             
                         
     
