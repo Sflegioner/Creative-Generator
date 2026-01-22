@@ -1,6 +1,7 @@
 # core/Canvas.py
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import tkinter as tk
+from tkinter import simpledialog  # <--- ДОДАНО для редагування тексту
 from .Item import Item 
 import os
 import random
@@ -25,6 +26,7 @@ class Canvas:
         self.tk_canvas.bind("<B1-Motion>", self.on_drag)
         self.tk_canvas.bind("<ButtonRelease-1>", self.on_release)
         self.tk_canvas.bind("<Delete>", self.on_delete)
+        self.tk_canvas.bind("<Double-Button-1>", self.on_double_click) 
 
     def on_click(self, event):
         self.tk_canvas.focus_set()
@@ -99,6 +101,24 @@ class Canvas:
             self.selected_item = None
             self.clear_handles()
 
+    def on_double_click(self, event):
+        if not self.selected_item or self.selected_item.type != 'text':
+            return
+
+        new_text = simpledialog.askstring(
+            "Edit",
+            "New text:",
+            initialvalue=self.selected_item.text or ""
+        )
+
+        if new_text is not None:  
+            self.selected_item.text = new_text
+            font_path = self.main_window.font_selector.get_selected_font_path()
+
+            display_text = new_text if new_text.strip() else " "
+            self.selected_item.content = self._text_to_image(display_text, font_path=font_path)
+            self.redraw_selected_item()
+
     def _select_item(self, event):
         self.clear_handles()
         clicked_ids = self.tk_canvas.find_overlapping(event.x - 5, event.y - 5, event.x + 5, event.y + 5)
@@ -158,6 +178,8 @@ class Canvas:
         else:
             new_item = Item(item_type, 50 + len(self.items) * 20, 50 + len(self.items) * 20, 100, 100)
             new_item.is_background = False
+            if item_type == 'text':
+                new_item.text = ""
             self.items.append(new_item)
         
         new_item.draw_on_canvas(self.tk_canvas)
@@ -165,7 +187,6 @@ class Canvas:
             self.tk_canvas.lower(new_item.canvas_id)
 
     def insert_content(self, folder_manager):
-        #TO
         suffix = '_D' if self.is_before else '_P'
         
         for item in self.items:
@@ -241,15 +262,17 @@ class Canvas:
                 else:
                     selected_id = folder_manager.selected_text_id
 
+                font_path = self.main_window.font_selector.get_selected_font_path()
+
                 if (selected_id is not None and 
                     selected_id in text_pairs and 
                     suffix in text_pairs[selected_id]):
                     selected_text = text_pairs[selected_id][suffix]
-                    font_path = self.main_window.font_selector.get_selected_font_path()
+                    item.text = selected_text
                     item.content = self._text_to_image(selected_text, font_path=font_path)
                 else:
                     print(f"No text found for ID {selected_id} and suffix {suffix}")
-                    font_path = self.main_window.font_selector.get_selected_font_path()
+                    item.text = "NO TEXT"
                     item.content = self._text_to_image("NO TEXT", font_path=font_path)
 
             else:
