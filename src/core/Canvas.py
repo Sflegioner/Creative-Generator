@@ -1,7 +1,7 @@
 # core/Canvas.py
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import tkinter as tk
-from tkinter import simpledialog  # <--- ДОДАНО для редагування тексту
+from tkinter import simpledialog 
 from .Item import Item 
 import os
 import random
@@ -16,7 +16,7 @@ class Canvas:
         self.selected_item = None
         self.drag_start_x = 0
         self.drag_start_y = 0
-        self.mode = None  # 'move', 'resize', 'rotate'
+        self.mode = None  
         self.handle_size = 8
         self.handles = []
         self.setup_bindings()
@@ -189,6 +189,11 @@ class Canvas:
     def insert_content(self, folder_manager):
         suffix = '_D' if self.is_before else '_P'
         
+        # ==== ВИПРАВЛЕННЯ: перечитуємо списки файлів щоразу свіжо ====
+        folder_manager.reload_all_paths()
+        
+        upscale_factor = 4  # апскейл для всіх зображень (фон, стікери тощо)
+
         for item in self.items:
 
             paths = {
@@ -285,7 +290,11 @@ class Canvas:
                 path = random.choice(candidates)
                 
                 try:
-                    item.content = Image.open(path)
+                    img = Image.open(path).convert("RGBA")
+                    # Апскейл у 4× (supersampling)
+                    w, h = img.size
+                    img = img.resize((w * upscale_factor, h * upscale_factor), Image.LANCZOS)
+                    item.content = img
                 except Exception as e:
                     print(f"Error opening image {path}: {e}")
 
@@ -294,47 +303,64 @@ class Canvas:
                 self.tk_canvas.lower(item.canvas_id)
 
     def _text_to_image(self, text: str, font_path: str = None) -> Image:
-        font_size = 40
-        
-        if not font_path:
+        if not text.strip():
+            text = " "
+
+        supersample = 4
+        base_font_size = 40
+
+        if font_path:
             try:
-                font = ImageFont.truetype("arial.ttf", font_size)
+                temp_font = ImageFont.truetype(font_path, base_font_size)
             except OSError:
-                try:
-                    font_path = "C:/GitProjects/Creative-Generator/resources/fonts/TikTokSans-VF-v3.3.ttf"
-                    font = ImageFont.truetype(font_path, font_size)
-                except OSError:
-                    font = ImageFont.load_default()
+                temp_font = ImageFont.load_default()
         else:
+            try:
+                temp_font = ImageFont.truetype("arial.ttf", base_font_size)
+            except OSError:
+                temp_font = ImageFont.load_default()
+
+        dummy = Image.new("RGBA", (1, 1))
+        d = ImageDraw.Draw(dummy)
+        bbox = d.textbbox((0, 0), text, font=temp_font)
+        base_text_w = bbox[2] - bbox[0]
+        base_text_h = bbox[3] - bbox[1]
+
+        base_w = base_text_w + 40
+        base_h = base_text_h + 40
+
+        font_size = base_font_size * supersample
+
+        if font_path:
             try:
                 font = ImageFont.truetype(font_path, font_size)
             except OSError:
                 font = ImageFont.load_default()
+        else:
+            try:
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except OSError:
+                font = ImageFont.load_default()
 
-        dummy = Image.new("RGBA", (1, 1))
-        d = ImageDraw.Draw(dummy)
-        bbox = d.textbbox((0, 0), text, font=font)
-        
-        text_w = bbox[2] - bbox[0]
-        text_h = bbox[3] - bbox[1]
-        
-        w = text_w + 40
-        h = text_h + 40
+        large_w = base_w * supersample
+        large_h = base_h * supersample
 
-        img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        d = ImageDraw.Draw(img)
-        
-        x_pos, y_pos = 20, 10
+        img_large = Image.new("RGBA", (large_w, large_h), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img_large)
 
+        x_pos = 20 * supersample
+        y_pos = 10 * supersample
+        thickness = 2 * supersample
         outline_color = "black"
-        thickness = 2
+
         for x_off in range(-thickness, thickness + 1):
             for y_off in range(-thickness, thickness + 1):
                 if x_off == 0 and y_off == 0:
                     continue
-                d.text((x_pos + x_off, y_pos + y_off), text, font=font, fill=outline_color)
+                draw.text((x_pos + x_off, y_pos + y_off), text, font=font, fill=outline_color)
 
-        d.text((x_pos, y_pos), text, fill="white", font=font)
+        draw.text((x_pos, y_pos), text, fill="white", font=font)
+        img = img_large.resize((base_w, base_h), Image.LANCZOS)
 
         return img
 
@@ -344,7 +370,7 @@ class Canvas:
 
         for item in self.items:
             if item.content:
-                content_img = item.content if not isinstance(item.content, str) else self._text_to_image(item.content)
+                content_img = item.content
                 rotated = content_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
                 resized = rotated.resize((item.width, item.height), Image.LANCZOS)
                 
