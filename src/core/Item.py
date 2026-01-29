@@ -15,7 +15,6 @@ class Item:
         self.photo = None  
         self.is_background = False  
         self.tk_image = None
-        # НОВА ПОЛЯ: зберігаємо оригінальний текст окремо
         self.text: str = ""  # <--- ДОДАНО
 
     def draw_on_canvas(self, tk_canvas: tk.Canvas, bg_color: str = "#808080"):

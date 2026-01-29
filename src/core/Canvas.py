@@ -189,10 +189,9 @@ class Canvas:
     def insert_content(self, folder_manager):
         suffix = '_D' if self.is_before else '_P'
         
-        # ==== ВИПРАВЛЕННЯ: перечитуємо списки файлів щоразу свіжо ====
         folder_manager.reload_all_paths()
         
-        upscale_factor = 4  # апскейл для всіх зображень (фон, стікери тощо)
+        upscale_factor = 4 
 
         for item in self.items:
 
