@@ -91,6 +91,7 @@ class Canvas:
             item.width -= dx
             item.height += dy
         
+        # Мінімальний розмір, щоб не схлопнулось
         item.width = max(10, item.width)
         item.height = max(10, item.height)
 
@@ -122,7 +123,8 @@ class Canvas:
             font_path = self.main_window.font_selector.get_selected_font_path()
 
             display_text = new_text if new_text.strip() else " "
-            self.selected_item.content = self._text_to_image(display_text, font_path=font_path)
+            # Для екрану генеруємо звичайну якість (scale_factor=1)
+            self.selected_item.content = self._text_to_image(display_text, font_path=font_path, scale_factor=1.0)
             self.selected_item.preview_content = None
             self.redraw_selected_item()
 
@@ -215,7 +217,6 @@ class Canvas:
                 continue
 
             if item.type == 'text':
-                # Текстова логіка без змін
                 if not hasattr(folder_manager, 'text_pairs'):
                     text_pairs = {}
                     for path in paths:
@@ -278,16 +279,15 @@ class Canvas:
                     suffix in text_pairs[selected_id]):
                     selected_text = text_pairs[selected_id][suffix]
                     item.text = selected_text
-                    item.content = self._text_to_image(selected_text, font_path=font_path)
+                    # Генеруємо для відображення на екрані
+                    item.content = self._text_to_image(selected_text, font_path=font_path, scale_factor=1.0)
                 else:
-                    print(f"No text found for ID {selected_id} and suffix {suffix}")
                     item.text = "NO TEXT"
-                    item.content = self._text_to_image("NO TEXT", font_path=font_path)
+                    item.content = self._text_to_image("NO TEXT", font_path=font_path, scale_factor=1.0)
 
                 item.preview_content = None
 
             else:
-                # Логіка для зображень (парний вибір)
                 pairs = {}
                 for p in paths:
                     filename = os.path.basename(p)
@@ -319,7 +319,7 @@ class Canvas:
 
                 try:
                     img = Image.open(path).convert("RGBA")
-                    item.content = img
+                    item.content = img  # Зберігаємо оригінал високої якості
 
                     preview = img.copy()
                     preview.thumbnail((512, 512))
@@ -330,111 +330,177 @@ class Canvas:
             item.draw_on_canvas(self.tk_canvas)
             if item.is_background:
                 self.tk_canvas.lower(item.canvas_id)
-    def _text_to_image(self, text: str, font_path: str = None) -> Image:
-            if not text.strip():
-                text = " "
 
-            supersample = 4
-            base_font_size = 40
+    def _text_to_image(self, text: str, font_path: str = None, scale_factor: float = 1.0) -> Image:
+        """
+        scale_factor: 
+           1.0 -> для екрану (з supersample=4 для згладжування, потім зменшуємо).
+           4.0+ -> для збереження (генеруємо гігантський текст і НЕ зменшуємо).
+        """
+        if not text.strip():
+            text = " "
 
-            if font_path:
-                try:
-                    temp_font = ImageFont.truetype(font_path, base_font_size)
-                except OSError:
-                    temp_font = ImageFont.load_default()
-            else:
-                try:
-                    temp_font = ImageFont.truetype("arial.ttf", base_font_size)
-                except OSError:
-                    temp_font = ImageFont.load_default()
-
-            dummy = Image.new("RGBA", (1, 1))
-            d = ImageDraw.Draw(dummy)
-            bbox = d.textbbox((0, 0), text, font=temp_font)
-            base_text_w = bbox[2] - bbox[0]
-            base_text_h = bbox[3] - bbox[1]
-
-            # Більше відступів під тінь + outline
-            base_w = base_text_w + 120  
-            base_h = base_text_h + 120
-
-            font_size = base_font_size * supersample
-
-            if font_path:
-                try:
-                    font = ImageFont.truetype(font_path, font_size)
-                except OSError:
-                    font = ImageFont.load_default()
-            else:
-                try:
-                    font = ImageFont.truetype("arial.ttf", font_size)
-                except OSError:
-                    font = ImageFont.load_default()
-
-            large_w = base_w * supersample
-            large_h = base_h * supersample
-
-            # Основне зображення (прозоре)
-            img_large = Image.new("RGBA", (large_w, large_h), (0, 0, 0, 0))
-
-            # Позиція тексту
-            x_pos = 60 * supersample
-            y_pos = 50 * supersample
-
-            # === ТІНЬ ===
-            shadow_offset_x = supersample * 5   # вправо
-            shadow_offset_y = supersample * 7   # вниз
-            shadow_radius = supersample * 5     # м'якше розмиття
-            shadow_color = (0, 0, 0, 220)
-
-            shadow_layer = Image.new("RGBA", img_large.size, (0, 0, 0, 0))
-            shadow_draw = ImageDraw.Draw(shadow_layer)
-            shadow_draw.text(
-                (x_pos + shadow_offset_x, y_pos + shadow_offset_y),
-                text,
-                font=font,
-                fill=shadow_color
-            )
-            blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=shadow_radius))
-            img_large = Image.alpha_composite(img_large, blurred_shadow)
-
-            draw = ImageDraw.Draw(img_large)
-
-            outline_thickness = 3 * supersample  
-            outline_color = (0, 0, 0, 255)       
-
-            for dx in range(-outline_thickness, outline_thickness + 1):
-                for dy in range(-outline_thickness, outline_thickness + 1):
-                    if dx != 0 or dy != 0:  
-                        draw.text((x_pos + dx, y_pos + dy), text, font=font, fill=outline_color)
-
-
-            draw.text((x_pos, y_pos), text, fill="white", font=font)
-
-            img = img_large.resize((base_w, base_h), Image.LANCZOS)
-
-            return img
-    def save_composition(self, filename: str):
-        width, height = self.tk_canvas.winfo_width(), self.tk_canvas.winfo_height()
-        composite = Image.new("RGB", (width, height), (128, 128, 128))
-
-        for item in self.items:
-            if item.content:
-                content_img = item.content
-                
-                upscale_factor = 4
-                if item.type != 'text':
-                    orig_w, orig_h = content_img.size
-                    supersampled = content_img.resize((orig_w * upscale_factor, orig_h * upscale_factor), Image.LANCZOS)
-                    rotated = supersampled.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
-                else:
-                    rotated = content_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
-                
-                resized = rotated.resize((item.width, item.height), Image.LANCZOS)
-                
-                paste_x = item.x - item.width // 2
-                paste_y = item.y - item.height // 2
-                
-                composite.paste(resized, (paste_x, paste_y), resized if resized.mode == 'RGBA' else None)
+        # Базові налаштування
+        base_font_size = 40
         
-        composite.save(filename)
+        # Для екрану ми робимо supersampling x4, а потім resize вниз.
+        # Для збереження (scale_factor >= 4) ми просто робимо великий шрифт і не робимо resize вниз.
+        
+        if scale_factor > 1.5:
+            # Режим збереження: генеруємо текст розміром scale_factor відносно бази
+            render_scale = scale_factor
+            do_downscale = False
+        else:
+            # Режим екрану: генеруємо x4, потім зменшуємо до x1
+            render_scale = 4.0
+            do_downscale = True
+
+        font_size = int(base_font_size * render_scale)
+
+        if font_path:
+            try:
+                font = ImageFont.truetype(font_path, font_size)
+            except OSError:
+                font = ImageFont.load_default()
+        else:
+            try:
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except OSError:
+                font = ImageFont.load_default()
+
+        # Визначаємо розміри тексту
+        dummy = Image.new("RGBA", (1, 1))
+        d = ImageDraw.Draw(dummy)
+        bbox = d.textbbox((0, 0), text, font=font)
+        text_w = bbox[2] - bbox[0]
+        text_h = bbox[3] - bbox[1]
+
+        # Додаємо відступи (padding), пропорційні масштабу
+        padding = int(30 * render_scale)
+        img_w = text_w + padding * 2
+        img_h = text_h + padding * 2
+
+        # Створюємо прозоре зображення
+        img = Image.new("RGBA", (img_w, img_h), (0, 0, 0, 0))
+        
+        # Позиція тексту (центруємо з урахуванням bbox)
+        # Але простіше просто відступити на padding
+        x_pos = padding
+        y_pos = padding # Приблизно, можна точніше вирівняти, але для тіні досить
+
+        # === ТІНЬ ===
+        shadow_offset_x = int(5 * (render_scale / 4 * 4)) # масштабуємо зміщення
+        shadow_offset_y = int(7 * (render_scale / 4 * 4))
+        shadow_radius = int(5 * (render_scale / 4 * 4))
+        shadow_color = (0, 0, 0, 220)
+
+        shadow_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        shadow_draw = ImageDraw.Draw(shadow_layer)
+        shadow_draw.text(
+            (x_pos + shadow_offset_x, y_pos + shadow_offset_y),
+            text,
+            font=font,
+            fill=shadow_color
+        )
+        # GaussianBlur залежить від пікселів, масштабуємо радіус
+        blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=shadow_radius))
+        img = Image.alpha_composite(img, blurred_shadow)
+
+        draw = ImageDraw.Draw(img)
+
+        # === OUTLINE ===
+        outline_thickness = int(3 * (render_scale / 4 * 4))
+        outline_thickness = max(1, outline_thickness)
+        outline_color = (0, 0, 0, 255)
+
+        # Малюємо обводку (брутальний метод, але надійний)
+        for dx in range(-outline_thickness, outline_thickness + 1):
+            for dy in range(-outline_thickness, outline_thickness + 1):
+                if dx != 0 or dy != 0:
+                    draw.text((x_pos + dx, y_pos + dy), text, font=font, fill=outline_color)
+
+        # === Основний текст ===
+        draw.text((x_pos, y_pos), text, fill="white", font=font)
+
+        # Якщо ми в режимі екрану (scale_factor ~1), зменшуємо картинку назад
+        if do_downscale:
+            target_w = int(img_w / 4)
+            target_h = int(img_h / 4)
+            img = img.resize((target_w, target_h), Image.LANCZOS)
+
+        return img
+
+    def save_composition(self, filename: str):
+        # 1. Визначаємо масштаб збереження. 
+        # Якщо екран 800px, SAVE_SCALE=4 зробить картинку 3200px (4K якість).
+        SAVE_SCALE = 4.0 
+
+        # Отримуємо розміри полотна
+        canvas_w = self.tk_canvas.winfo_width()
+        canvas_h = self.tk_canvas.winfo_height()
+
+        target_w = int(canvas_w * SAVE_SCALE)
+        target_h = int(canvas_h * SAVE_SCALE)
+
+        # Створюємо велике зображення
+        composite = Image.new("RGB", (target_w, target_h), (128, 128, 128))
+
+        # Отримуємо шлях до шрифту один раз, щоб використати для Text items
+        font_path = self.main_window.font_selector.get_selected_font_path()
+
+        # Малюємо елементи в порядку від заднього до переднього
+        # (self.items вже відсортовані, перший - background)
+        for item in self.items:
+            # Обчислюємо нову позицію центру
+            center_x = item.x * SAVE_SCALE
+            center_y = item.y * SAVE_SCALE
+            
+            # Обчислюємо цільовий розмір об'єкта
+            target_item_w = int(item.width * SAVE_SCALE)
+            target_item_h = int(item.height * SAVE_SCALE)
+
+            img_to_paste = None
+
+            if item.type == 'text':
+                # ГЕНЕРУЄМО ТЕКСТ ЗАНОВО У ВИСОКІЙ ЯКОСТІ
+                # Використовуємо наш покращений метод з великим scale_factor
+                # Передаємо текст, шрифт і масштаб
+                high_res_text = self._text_to_image(item.text, font_path=font_path, scale_factor=SAVE_SCALE)
+                
+                # Тепер high_res_text має ідеальну якість.
+                # Але його пропорції "природні" для тексту. 
+                # Користувач міг розтягнути текст на екрані непропорційно.
+                # Тому ми ресайзимо високоякісний текст до розмірів, які задав користувач (помножених на масштаб)
+                
+                # Спочатку обертаємо (expand=True, щоб не обрізати кути)
+                rotated = high_res_text.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
+                
+                # Тепер масштабуємо до фінального розміру на полотні
+                img_to_paste = rotated.resize((target_item_w, target_item_h), Image.LANCZOS)
+
+            elif item.content:
+                # ЗОБРАЖЕННЯ (Карти, Фони, Об'єкти)
+                # Беремо оригінал (item.content - це повна якість)
+                original_img = item.content
+                
+                # Логіка для максимальної якості:
+                # 1. Обертаємо оригінал (він великий, тому втрати мінімальні).
+                rotated = original_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
+                
+                # 2. Масштабуємо (зменшуємо або збільшуємо) до цільового розміру.
+                # Використовуємо LANCZOS для найкращої деталізації.
+                img_to_paste = rotated.resize((target_item_w, target_item_h), Image.LANCZOS)
+
+            if img_to_paste:
+                # Обчислюємо координати вставки (top-left), бо paste приймає лівий верхній кут
+                paste_w, paste_h = img_to_paste.size
+                paste_x = int(center_x - paste_w / 2)
+                paste_y = int(center_y - paste_h / 2)
+
+                # Вставляємо з маскою прозорості
+                if img_to_paste.mode == 'RGBA':
+                    composite.paste(img_to_paste, (paste_x, paste_y), img_to_paste)
+                else:
+                    composite.paste(img_to_paste, (paste_x, paste_y))
+        
+        composite.save(filename, quality=95, subsampling=0)
