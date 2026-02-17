@@ -1,0 +1,39 @@
+"D£HЬ 1 B TUM£ C 1500 PYB..." _D 22
+
+"D£HЬ 432 B TUM£..." _P 22
+
+"D£HЬ 1 CTAPTOBАЛ C 1200 PYB..." _D 23
+
+"D£HЬ 389 B TUM£..." _P 23
+
+"D£HЬ 1 3АШ£Л B K0МАНDУ C 2000 PYB..." _D 24
+
+"D£HЬ 512 B TUM£..." _P 24
+
+"D£HЬ 1 HAЧАЛ ПУТЬ C 1000 PYB..." _D 25
+
+"D£HЬ 456 B TUM£..." _P 25
+
+"D£HЬ 1 П£PBЫЙ ШАГ C 1800 PYB..." _D 26
+
+"D£HЬ 378 B TUM£..." _P 26
+
+"D£HЬ 1 B K0МАНD£ - CTAPT..." _D 27
+
+"D£HЬ 499 B TUM£..." _P 27
+
+"D£HЬ 1 HAЧАЛ 2026 C 1500 PYB..." _D 28
+
+"D£HЬ 421 B TUM£..." _P 28
+
+"D£HЬ 1 B TUM£ - П£PBЫЙ D£HЬ..." _D 29
+
+"D£HЬ 535 B TUM£..." _P 29
+
+"D£HЬ 1 C 1300 PYB HA CTAPT..." _D 30
+
+"D£HЬ 467 B TUM£..." _P 30
+
+"D£HЬ 1 ПPИШ£Л B K0МАНDУ..." _D 31
+
+"D£HЬ 398 B TUM£..." _P 31

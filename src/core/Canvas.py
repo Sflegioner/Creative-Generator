@@ -1,5 +1,5 @@
 # core/Canvas.py
-from PIL import Image, ImageTk, ImageDraw, ImageFont
+from PIL import Image, ImageTk, ImageDraw, ImageFont, ImageFilter
 import tkinter as tk
 from tkinter import simpledialog 
 from .Item import Item 
@@ -19,6 +19,7 @@ class Canvas:
         self.mode = None  
         self.handle_size = 8
         self.handles = []
+        self.preview_mode = False
         self.setup_bindings()
 
     def setup_bindings(self):
@@ -39,9 +40,10 @@ class Canvas:
                     self.mode = 'rotate'
                 else:
                     self.mode = 'resize'
-                    self.resize_corner = handle_index  # 0: TL, 1: TR, 2: BR, 3: BL
+                    self.resize_corner = handle_index
                 self.drag_start_x = event.x
                 self.drag_start_y = event.y
+                self.preview_mode = True
                 return
 
         self._select_item(event)
@@ -49,6 +51,7 @@ class Canvas:
             self.mode = 'move'
             self.drag_start_x = event.x
             self.drag_start_y = event.y
+            self.preview_mode = True
 
     def on_drag(self, event):
         if not self.selected_item:
@@ -92,7 +95,10 @@ class Canvas:
         item.height = max(10, item.height)
 
     def on_release(self, event):
+        self.preview_mode = False
         self.mode = None
+        if self.selected_item:
+            self.redraw_selected_item()
 
     def on_delete(self, event):
         if self.selected_item and not self.selected_item.is_background:
@@ -117,6 +123,7 @@ class Canvas:
 
             display_text = new_text if new_text.strip() else " "
             self.selected_item.content = self._text_to_image(display_text, font_path=font_path)
+            self.selected_item.preview_content = None
             self.redraw_selected_item()
 
     def _select_item(self, event):
@@ -125,7 +132,6 @@ class Canvas:
         
         found = False
         if clicked_ids:
-
             for item in reversed(self.items):
                 if item.canvas_id in clicked_ids:
                     if item.is_background:
@@ -163,7 +169,7 @@ class Canvas:
  
     def redraw_selected_item(self):
         if self.selected_item:
-            self.selected_item.draw_on_canvas(self.tk_canvas)
+            self.selected_item.draw_on_canvas(self.tk_canvas, use_preview=self.preview_mode)
             self.clear_handles()
             if not self.selected_item.is_background:
                 self.draw_handles()
@@ -188,13 +194,11 @@ class Canvas:
 
     def insert_content(self, folder_manager):
         suffix = '_D' if self.is_before else '_P'
+        preferred_suffix = suffix
         
         folder_manager.reload_all_paths()
-        
-        upscale_factor = 4 
 
         for item in self.items:
-
             paths = {
                 'background': folder_manager.all_paths_to_backgrounds_images,
                 'card': folder_manager.all_paths_to_items_images,
@@ -211,6 +215,7 @@ class Canvas:
                 continue
 
             if item.type == 'text':
+                # Текстова логіка без змін
                 if not hasattr(folder_manager, 'text_pairs'):
                     text_pairs = {}
                     for path in paths:
@@ -279,98 +284,152 @@ class Canvas:
                     item.text = "NO TEXT"
                     item.content = self._text_to_image("NO TEXT", font_path=font_path)
 
+                item.preview_content = None
+
             else:
-                filtered_paths = [
-                    p for p in paths 
-                    if os.path.basename(p).rsplit('.', 1)[0].lower().endswith(suffix.lower())
-                ]
-                
-                candidates = filtered_paths if filtered_paths else paths
-                path = random.choice(candidates)
-                
+                # Логіка для зображень (парний вибір)
+                pairs = {}
+                for p in paths:
+                    filename = os.path.basename(p)
+                    name, _ = os.path.splitext(filename)
+                    parts = name.rsplit('_', 1)
+                    if len(parts) == 2:
+                        base, suf = parts
+                        if suf.upper() in ('D', 'P'):
+                            suffix_key = '_' + suf.upper()
+                            pairs.setdefault(base, {})[suffix_key] = p
+                            continue
+                    pairs.setdefault(name, {})[''] = p
+
+                complete_bases = [b for b in pairs if '_D' in pairs[b] and '_P' in pairs[b]]
+
+                attr_name = f"selected_{item.type}_base"
+
+                if self.is_before or not hasattr(folder_manager, attr_name):
+                    if complete_bases:
+                        chosen_base = random.choice(complete_bases)
+                    else:
+                        chosen_base = random.choice(list(pairs.keys()))
+                    setattr(folder_manager, attr_name, chosen_base)
+                else:
+                    chosen_base = getattr(folder_manager, attr_name)
+
+                base_dict = pairs[chosen_base]
+                path = base_dict.get(preferred_suffix) or random.choice(list(base_dict.values()))
+
                 try:
                     img = Image.open(path).convert("RGBA")
-                    # Апскейл у 4× (supersampling)
-                    w, h = img.size
-                    img = img.resize((w * upscale_factor, h * upscale_factor), Image.LANCZOS)
                     item.content = img
+
+                    preview = img.copy()
+                    preview.thumbnail((512, 512))
+                    item.preview_content = preview
                 except Exception as e:
                     print(f"Error opening image {path}: {e}")
 
             item.draw_on_canvas(self.tk_canvas)
             if item.is_background:
                 self.tk_canvas.lower(item.canvas_id)
-
     def _text_to_image(self, text: str, font_path: str = None) -> Image:
-        if not text.strip():
-            text = " "
+            if not text.strip():
+                text = " "
 
-        supersample = 4
-        base_font_size = 40
+            supersample = 4
+            base_font_size = 40
 
-        if font_path:
-            try:
-                temp_font = ImageFont.truetype(font_path, base_font_size)
-            except OSError:
-                temp_font = ImageFont.load_default()
-        else:
-            try:
-                temp_font = ImageFont.truetype("arial.ttf", base_font_size)
-            except OSError:
-                temp_font = ImageFont.load_default()
+            if font_path:
+                try:
+                    temp_font = ImageFont.truetype(font_path, base_font_size)
+                except OSError:
+                    temp_font = ImageFont.load_default()
+            else:
+                try:
+                    temp_font = ImageFont.truetype("arial.ttf", base_font_size)
+                except OSError:
+                    temp_font = ImageFont.load_default()
 
-        dummy = Image.new("RGBA", (1, 1))
-        d = ImageDraw.Draw(dummy)
-        bbox = d.textbbox((0, 0), text, font=temp_font)
-        base_text_w = bbox[2] - bbox[0]
-        base_text_h = bbox[3] - bbox[1]
+            dummy = Image.new("RGBA", (1, 1))
+            d = ImageDraw.Draw(dummy)
+            bbox = d.textbbox((0, 0), text, font=temp_font)
+            base_text_w = bbox[2] - bbox[0]
+            base_text_h = bbox[3] - bbox[1]
 
-        base_w = base_text_w + 40
-        base_h = base_text_h + 40
+            # Більше відступів під тінь + outline
+            base_w = base_text_w + 120  
+            base_h = base_text_h + 120
 
-        font_size = base_font_size * supersample
+            font_size = base_font_size * supersample
 
-        if font_path:
-            try:
-                font = ImageFont.truetype(font_path, font_size)
-            except OSError:
-                font = ImageFont.load_default()
-        else:
-            try:
-                font = ImageFont.truetype("arial.ttf", font_size)
-            except OSError:
-                font = ImageFont.load_default()
+            if font_path:
+                try:
+                    font = ImageFont.truetype(font_path, font_size)
+                except OSError:
+                    font = ImageFont.load_default()
+            else:
+                try:
+                    font = ImageFont.truetype("arial.ttf", font_size)
+                except OSError:
+                    font = ImageFont.load_default()
 
-        large_w = base_w * supersample
-        large_h = base_h * supersample
+            large_w = base_w * supersample
+            large_h = base_h * supersample
 
-        img_large = Image.new("RGBA", (large_w, large_h), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img_large)
+            # Основне зображення (прозоре)
+            img_large = Image.new("RGBA", (large_w, large_h), (0, 0, 0, 0))
 
-        x_pos = 20 * supersample
-        y_pos = 10 * supersample
-        thickness = 2 * supersample
-        outline_color = "black"
+            # Позиція тексту
+            x_pos = 60 * supersample
+            y_pos = 50 * supersample
 
-        for x_off in range(-thickness, thickness + 1):
-            for y_off in range(-thickness, thickness + 1):
-                if x_off == 0 and y_off == 0:
-                    continue
-                draw.text((x_pos + x_off, y_pos + y_off), text, font=font, fill=outline_color)
+            # === ТІНЬ ===
+            shadow_offset_x = supersample * 5   # вправо
+            shadow_offset_y = supersample * 7   # вниз
+            shadow_radius = supersample * 5     # м'якше розмиття
+            shadow_color = (0, 0, 0, 220)
 
-        draw.text((x_pos, y_pos), text, fill="white", font=font)
-        img = img_large.resize((base_w, base_h), Image.LANCZOS)
+            shadow_layer = Image.new("RGBA", img_large.size, (0, 0, 0, 0))
+            shadow_draw = ImageDraw.Draw(shadow_layer)
+            shadow_draw.text(
+                (x_pos + shadow_offset_x, y_pos + shadow_offset_y),
+                text,
+                font=font,
+                fill=shadow_color
+            )
+            blurred_shadow = shadow_layer.filter(ImageFilter.GaussianBlur(radius=shadow_radius))
+            img_large = Image.alpha_composite(img_large, blurred_shadow)
 
-        return img
+            draw = ImageDraw.Draw(img_large)
 
+            outline_thickness = 3 * supersample  
+            outline_color = (0, 0, 0, 255)       
+
+            for dx in range(-outline_thickness, outline_thickness + 1):
+                for dy in range(-outline_thickness, outline_thickness + 1):
+                    if dx != 0 or dy != 0:  
+                        draw.text((x_pos + dx, y_pos + dy), text, font=font, fill=outline_color)
+
+
+            draw.text((x_pos, y_pos), text, fill="white", font=font)
+
+            img = img_large.resize((base_w, base_h), Image.LANCZOS)
+
+            return img
     def save_composition(self, filename: str):
         width, height = self.tk_canvas.winfo_width(), self.tk_canvas.winfo_height()
-        composite = Image.new("RGB", (width, height), (128, 128, 128))  # Start with solid gray to match placeholder and avoid transparency issues
+        composite = Image.new("RGB", (width, height), (128, 128, 128))
 
         for item in self.items:
             if item.content:
                 content_img = item.content
-                rotated = content_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
+                
+                upscale_factor = 4
+                if item.type != 'text':
+                    orig_w, orig_h = content_img.size
+                    supersampled = content_img.resize((orig_w * upscale_factor, orig_h * upscale_factor), Image.LANCZOS)
+                    rotated = supersampled.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
+                else:
+                    rotated = content_img.rotate(item.rotation, expand=True, resample=Image.BICUBIC)
+                
                 resized = rotated.resize((item.width, item.height), Image.LANCZOS)
                 
                 paste_x = item.x - item.width // 2
