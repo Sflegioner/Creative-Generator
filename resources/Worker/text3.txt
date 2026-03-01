@@ -1,39 +1,178 @@
 "D£HЬ 1 B TUM£ C 1500 PYB..." _D 22
 
-"D£HЬ 432 B TUM£..." _P 22
+"D£HЬ 43 B TUM£..." _P 22
 
 "D£HЬ 1 CTAPTOBАЛ C 1200 PYB..." _D 23
 
-"D£HЬ 389 B TUM£..." _P 23
+"D£HЬ 38 B TUM£..." _P 23
 
 "D£HЬ 1 3АШ£Л B K0МАНDУ C 2000 PYB..." _D 24
 
-"D£HЬ 512 B TUM£..." _P 24
+"D£HЬ 55 B TUM£..." _P 24
 
 "D£HЬ 1 HAЧАЛ ПУТЬ C 1000 PYB..." _D 25
 
-"D£HЬ 456 B TUM£..." _P 25
+"D£HЬ 59 B TUM£..." _P 25
 
 "D£HЬ 1 П£PBЫЙ ШАГ C 1800 PYB..." _D 26
 
-"D£HЬ 378 B TUM£..." _P 26
+"D£HЬ 99 B TUM£..." _P 26
 
 "D£HЬ 1 B K0МАНD£ - CTAPT..." _D 27
 
-"D£HЬ 499 B TUM£..." _P 27
+"D£HЬ 49 B TUM£..." _P 27
 
 "D£HЬ 1 HAЧАЛ 2026 C 1500 PYB..." _D 28
 
-"D£HЬ 421 B TUM£..." _P 28
+"D£HЬ 42 B TUM£..." _P 28
 
 "D£HЬ 1 B TUM£ - П£PBЫЙ D£HЬ..." _D 29
 
-"D£HЬ 535 B TUM£..." _P 29
+"D£HЬ 53 B TUM£..." _P 29
 
 "D£HЬ 1 C 1300 PYB HA CTAPT..." _D 30
 
-"D£HЬ 467 B TUM£..." _P 30
+"D£HЬ 46 B TUM£..." _P 30
 
 "D£HЬ 1 ПPИШ£Л B K0МАНDУ..." _D 31
 
-"D£HЬ 398 B TUM£..." _P 31
+"D£HЬ 68 B TUM£..." _P 31
+
+"D£HЬ 1 CTAPTOBAЛ C 1850 P..." _D 32
+"D£HЬ 60 B TUM£..." _P 32
+"D£HЬ 1 BLET£Л B K0МAHДY C 2100 P..." _D 33
+"D£HЬ 38 B TUM£..." _P 33
+"D£HЬ 1 HAЧАЛ C 1200 P HA PYKAX..." _D 34
+"D£HЬ 75 B TUM£..." _P 34
+"D£HЬ 1 ПP0KAЧAЛ Б@ЛAHC C 2650 P..." _D 35
+"D£HЬ 51 B TUM£..." _P 35
+"D£HЬ 1 ЗAШ£Л C 2300 P..." _D 36
+"D£HЬ 69 B TUM£..." _P 36
+"D£HЬ 1 B TUM£ C ПEPBЫM ДEП0ЗUT0M..." _D 37
+"D£HЬ 54 B TUM£..." _P 37
+"D£HЬ 1 HAБPAЛ X0Д C 1550 P..." _D 38
+"D£HЬ 76 B TUM£..." _P 38
+"D£HЬ 1 ПP0CTO BЗЯЛ U HAЧАЛ C 2400 P..." _D 39
+"D£HЬ 44 B TUM£..." _P 39
+"D£HЬ 1 C 1700 P HA CTAPTE..." _D 40
+"D£HЬ 80 B TUM£..." _P 40
+"D£HЬ 1 B K0МAHД£ – CTAPTOBЫЙ 2800 P..." _D 41
+"D£HЬ 57 B TUM£..." _P 41
+"D£HЬ 1 ПEPBЫЙ PAЗ B TUM£ – 1400 P..." _D 42
+"D£HЬ 72 B TUM£..." _P 42
+"D£HЬ 1 ЗAШ£Л C 3100 – П0ГHAЛU..." _D 43
+"D£HЬ 62 B TUM£..." _P 43
+"D£HЬ 1 HAЧAЛ ПУТЬ C 1050 P..." _D 44
+"D£HЬ 79 B TUM£..." _P 44
+"D£HЬ 1 B TUM£ C 1950 P HA БAЛAHC£..." _D 45
+"D£HЬ 48 B TUM£..." _P 45
+"D£HЬ 1 ПPИШ£Л U ЗAPЯДUЛCЯ C 2500 P..." _D 46
+"D£HЬ 70 B TUM£..." _P 46
+"D£HЬ 1 CTAPTOBAЛ HOBO£ C 1350 P..." _D 47
+"D£HЬ 66 B TUM£..." _P 47
+"D£HЬ 1 BLET£Л C 2900 P – П0ГHAЛU..." _D 48
+"D£HЬ 55 B TUM£..." _P 48
+"D£HЬ 1 HAЧAЛ C 1600 P U П0£XAЛ..." _D 49
+"D£HЬ 83 B TUM£..." _P 49
+"D£HЬ 1 ЗAШ£Л B TUM£ C 2200 P..." _D 50
+"D£HЬ 61 B TUM£..." _P 50
+"D£HЬ 1 ПP0KAЧAЛCЯ C 2750 P..." _D 51
+"D£HЬ 52 B TUM£..." _P 51
+"D£HЬ 1 B K0МAHД£ C 1900 P HA CTAPT..." _D 52
+"D£HЬ 77 B TUM£..." _P 52
+"D£HЬ 1 HAБPAЛ 3000 P U П0ГHAЛ..." _D 53
+"D£HЬ 64 B TUM£..." _P 53
+"D£HЬ 1 ПEPBЫЙ ДEП0ЗUT 1250 P..." _D 54
+"D£HЬ 85 B TUM£..." _P 54
+"D£HЬ 1 HAЧAЛ 2026 C 2050 P..." _D 55
+"D£HЬ 59 B TUM£..." _P 55
+"D£HЬ 1 B TUM£ – CTAPTOBЫЙ 2450 P..." _D 56
+"D£HЬ 71 B TUM£..." _P 56
+"D£HЬ 1 ЗAЙШ£Л C 1800 P..." _D 57
+"D£HЬ 68 B TUM£..." _P 57
+"D£HЬ 1 ПP0CTO BЗЯЛ U HAЧAЛ C 2600 P..." _D 58
+"D£HЬ 50 B TUM£..." _P 58
+"D£HЬ 1 C 1450 P HA PYKAX..." _D 59
+"D£HЬ 82 B TUM£..." _P 59
+"D£HЬ 1 BLET£Л B TUM£ C 2850 P..." _D 60
+"D£HЬ 56 B TUM£..." _P 60
+"D£HЬ 1 HAЧAЛ ПУТЬ C 1150 P..." _D 61
+"D£HЬ 78 B TUM£..." _P 61
+"D£HЬ 1 ПPИШ£Л U ЗAPЯДUЛ 2700 P..." _D 62
+"D£HЬ 63 B TUM£..." _P 62
+"D£HЬ 1 CTAPTOBAЛ C 2300 P HA БAЛAHC£..." _D 63
+"D£HЬ 87 B TUM£..." _P 63
+"D£HЬ 1 ЗAШ£Л C 3200..." _D 64
+"D£HЬ 65 B TUM£..." _P 64
+"D£HЬ 1 B TUM£ C 1750 P..." _D 65
+"D£HЬ 74 B TUM£..." _P 65
+"D£HЬ 1 HAБPAЛ X0Д C 2550 P..." _D 66
+"D£HЬ 81 B TUM£..." _P 66
+"D£HЬ 1 ПEPBЫЙ PAЗ – 2000 P..." _D 67
+"D£HЬ 60 B TUM£..." _P 67
+"D£HЬ 1 B K0МAHД£ C 2950 P..." _D 68
+"D£HЬ 69 B TUM£..." _P 68
+"D£HЬ 1 HAЧAЛ C 1300 P U П0£XAЛ..." _D 69
+"D£HЬ 86 B TUM£..." _P 69
+"D£HЬ 1 ЗAЙШ£Л HA HOBO£ C 3100 P..." _D 70
+"D£HЬ 58 B TUM£..." _P 70
+"D£HЬ 1 ПP0KAЧAЛ БAЛAHC C 1650 P..." _D 71
+"D£HЬ 84 B TUM£..." _P 71
+"D£HЬ 1 B TUM£ C 2400 P HA CTAPT..." _D 72
+"D£HЬ 73 B TUM£..." _P 72
+"D£HЬ 1 CTAPTOBAЛ C 2800 P – П0ГHAЛU..." _D 73
+"D£HЬ 67 B TUM£..." _P 73
+"D£HЬ 1 HAЧAЛ C 1500 P U ЗAPЯДUЛCЯ..." _D 74
+"D£HЬ 89 B TUM£..." _P 74
+"D£HЬ 1 BLET£Л C 3350 P..." _D 75
+"D£HЬ 62 B TUM£..." _P 75
+"D£HЬ 1 ПPИШ£Л B TUM£ C 1950 P..." _D 76
+"D£HЬ 79 B TUM£..." _P 76
+"D£HЬ 1 HAБPAЛ 2650 PЛ..." _D 77
+"D£HЬ 66 B TUM£..." _P 77
+"D£HЬ 1 ЗAШ£Л C 2250 P HA PYKAX..." _D 78
+"D£HЬ 91 B TUM£..." _P 78
+"D£HЬ 1 ПEPBЫЙ ДEП0ЗUT 1700 P..." _D 79
+"D£HЬ 70 B TUM£..." _P 79
+"D£HЬ 1 B K0МAHД£ C 3050 P..." _D 80
+"D£HЬ 75 B TUM£..." _P 80
+"D£HЬ 1 HAЧAЛ ПУТЬ C 1400 P..." _D 81
+"D£HЬ 88 B TUM£..." _P 81
+"D£HЬ 1 CTAPTOBAЛ C 2900 P..." _D 82
+"D£HЬ 64 B TUM£..." _P 82
+"D£HЬ 1 B TUM£ C 2100 P HA БAЛAHC£..." _D 83
+"D£HЬ 92 B TUM£..." _P 83
+"D£HЬ 1 ЗAЙШ£Л C 3500U..." _D 84
+"D£HЬ 68 B TUM£..." _P 84
+"D£HЬ 1 ПP0CTO BЗЯЛ U HAЧAЛ C 2550 P..." _D 85
+"D£HЬ 80 B TUM£..." _P 85
+"D£HЬ 1 HAБPAЛ X0Д C 1800 P..." _D 86
+"D£HЬ 94 B TUM£..." _P 86
+"D£HЬ 1 ПEPBЫЙ PAЗ B TUM£ – 2300 P..." _D 87
+"D£HЬ 72 B TUM£..." _P 87
+"D£HЬ 1 BLET£Л C 3150 P..." _D 88
+"D£HЬ 85 B TUM£..." _P 88
+"D£HЬ 1 HAЧAЛ C 1600 P U П0£XAЛ..." _D 89
+"D£HЬ 76 B TUM£..." _P 89
+"D£HЬ 1 ЗAШ£Л HA HOBO£ C 3400 P..." _D 90
+"D£HЬ 90 B TUM£..." _P 90
+"D£HЬ 1 ПP0KAЧAЛCЯ C 2000 P..." _D 91
+"D£HЬ 82 B TUM£..." _P 91
+"D£HЬ 1 B TUM£ C 2750 P..." _D 92
+"D£HЬ 96 B TUM£..." _P 92
+"D£HЬ 1 CTAPTOBAЛ C 3000 P..." _D 93
+"D£HЬ 71 B TUM£..." _P 93
+"D£HЬ 1 HAЧAЛ 2027 C 1850 P..." _D 94
+"D£HЬ 93 B TUM£..." _P 94
+"D£HЬ 1 ПPИШ£Л U ЗAPЯДUЛ 3200 P..." _D 95
+"D£HЬ 77 B TUM£..." _P 95
+"D£HЬ 1 B K0МAHД£ C 3600 P..." _D 96
+"D£HЬ 98 B TUM£..." _P 96
+"D£HЬ 1 ЗAЙШ£Л C 2500 P HA CTAPT..." _D 97
+"D£HЬ 84 B TUM£..." _P 97
+"D£HЬ 1 HAБPAЛ 2800 P..." _D 98
+"D£HЬ 95 B TUM£..." _P 98
+"D£HЬ 1 ПEPBЫЙ ДEП0ЗUT 2100 P..." _D 99
+"D£HЬ 89 B TUM£..." _P 99
+"D£HЬ 1 B TUM£ C 4000 P..." _D 100
+"D£HЬ 99 B TUM£..." _P 100
